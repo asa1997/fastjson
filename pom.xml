@@ -81,13 +81,13 @@
 				<artifactId>maven-clean-plugin</artifactId>
 				<version>3.1.0</version>
 				<executions>
-				<execution>
-					<id>auto-clean</id>
-					<phase>initialize</phase>
-					<goals>
-					<goal>clean</goal>
-					</goals>
-				</execution>
+					<execution>
+						<id>auto-clean</id>
+						<phase>initialize</phase>
+						<goals>
+						<goal>clean</goal>
+						</goals>
+					</execution>
 				</executions>
 			</plugin>
 			<plugin>
@@ -128,9 +128,17 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
+				<!-- <configuration>
 					<includes>
 						<include>**/bvt/**/*.java</include>
+					</includes>
+				</configuration> -->
+				<configuration>
+					<excludes>
+						<exclude>${someModule.test.excludes}</exclude>
+					</excludes>
+					<includes>
+						<include>${someModule.test.includes}</include>
 					</includes>
 				</configuration>
 			</plugin>
@@ -173,6 +181,13 @@
 				</executions>
 			</plugin>
 		</plugins>
+		<properties>
+		<someModule.skip.tests>false</someModule.skip.tests>
+		<skipTests>${someModule.skip.tests}</skipTests>
+		<someModule.test.includes>**/bvt/**/*.java</someModule.test.includes>
+		<someModule.test.excludes>**/bvtVO/TestDTO.java</someModule.test.excludes>
+		</properties>
+	
 	</build>
 
 	<dependencies>
