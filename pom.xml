@@ -26,6 +26,10 @@
 		<javadoc.skip>true</javadoc.skip>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.version>1.8</jdk.version>
+		<someModule.skip.tests>false</someModule.skip.tests>
+		<skipTests>${someModule.skip.tests}</skipTests>
+		<someModule.test.includes>**/bvt/**/*.java</someModule.test.includes>
+		<someModule.test.excludes>**/bvtVO/TestDTO.java</someModule.test.excludes>
 	</properties>
 
 	<scm>
@@ -181,14 +185,7 @@
 					</execution>
 				</executions>
 			</plugin>
-		</plugins>
-		<properties>
-		<someModule.skip.tests>false</someModule.skip.tests>
-		<skipTests>${someModule.skip.tests}</skipTests>
-		<someModule.test.includes>**/bvt/**/*.java</someModule.test.includes>
-		<someModule.test.excludes>**/bvtVO/TestDTO.java</someModule.test.excludes>
-		</properties>
-	
+		</plugins>	
 	</build>
 
 	<dependencies>
