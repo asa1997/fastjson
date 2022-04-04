@@ -29,7 +29,9 @@ jobs:
             ${{ runner.os }}
 
       - name: Create Jar
-        run: mvn package --file pom.xml        # Prepare Jar from the source code
+        run: |
+          mvn compile --file pom.xml
+          mvn package --file pom.xml                    
     
       - name: Zip the content                              # Zip the contents inside target dir
         run: |
