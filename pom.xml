@@ -26,10 +26,10 @@
 		<javadoc.skip>true</javadoc.skip>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.version>1.8</jdk.version>
-		<someModule.skip.tests>false</someModule.skip.tests>
+		<!-- <someModule.skip.tests>false</someModule.skip.tests>
 		<skipTests>${someModule.skip.tests}</skipTests>
 		<someModule.test.includes>**/bvt/**/*.java</someModule.test.includes>
-		<someModule.test.excludes>**/bvtVO/TestDTO.java</someModule.test.excludes>
+		<someModule.test.excludes>**/bvtVO/TestDTO.java</someModule.test.excludes> -->
 	</properties>
 
 	<scm>
@@ -132,20 +132,23 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.9</version>
-				<!-- <configuration>
+				<!-- <version>2.9</version> -->
+				<configuration>
 					<includes>
 						<include>**/bvt/**/*.java</include>
 					</includes>
-				</configuration> -->
-				<configuration>
+					<excludes>
+						<exclude>**/bvtVO/TestDTO.java</exclude>
+					</excludes>
+				</configuration>
+				<!-- <configuration>
 					<excludes>
 						<exclude>${someModule.test.excludes}</exclude>
 					</excludes>
 					<includes>
 						<include>${someModule.test.includes}</include>
 					</includes>
-				</configuration>
+				</configuration> -->
 			</plugin>
 
 			<plugin>
