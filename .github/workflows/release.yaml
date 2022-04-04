@@ -4,7 +4,7 @@ on:
   push:
     # Sequence of  patterns matched against refs/tags
     tags:
-      - 'v1.2.24-BeSp2.0' # Push events for changes in v1.2.24-BeSp2.0
+      - 'v*' # Push events for changes in v1.2.24-BeSp2.0
 
 jobs:
   build:
