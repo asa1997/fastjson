@@ -1,0 +1,56 @@
+name: Create Release
+
+on:
+  push:
+    # Sequence of  patterns matched against refs/tags
+    tags:
+      - 'v1.2.24-BeSp*' # Push events for changes under v1.2.24-BeSp0.1, v1.2.24-BeSp0.2...
+
+jobs:
+  build:
+    name: Create Release
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Create Jar
+        run: |
+          mvn compile --file pom.xml
+          mvn clean package --file pom.xml                   
+    
+      - name: Zip the content                              # Zip the contents inside target dir
+        run: |
+            cd target
+            zip -r v1.2.24-BeSp2.0.zip * && mv v1.2.24-BeSp2.0.zip ..  
+            cd .. 
+        
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Changed JDK version to 1.8
+            Changed artifact version for fastjson
+            Minor error fixes for test cases 
+          draft: true
+          prerelease: false
+      - name: Upload release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./v1.2.24-BeSp2.0.zip
+          asset_name: v1.2.24-BeSp2.0.zip
+          asset_content_type: application/zip
+      - name: Publish release
+        uses: StuYarrow/publish-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          id: ${{ steps.create_release.outputs.id }}
