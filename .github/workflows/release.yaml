@@ -34,7 +34,9 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
           body: |
-            Patch for CVE-2017-18349
+            Changed JDK version to 1.8
+            Changed artifact version for fastjson
+            Minor error fixes for test cases 
           draft: true
           prerelease: false
       - name: Upload release asset
