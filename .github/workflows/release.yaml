@@ -17,7 +17,7 @@ jobs:
       - name: Create Jar
         run: |
           mvn compile --file pom.xml
-          mvn package --file pom.xml                   
+          mvn clean package -DskipTests --file pom.xml                   
     
       - name: Zip the content                              # Zip the contents inside target dir
         run: |
