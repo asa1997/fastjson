@@ -17,12 +17,12 @@ jobs:
       - name: Create Jar
         run: |
           mvn compile --file pom.xml
-          mvn clean package -DskipTests --file pom.xml                   
+          mvn clean package --file pom.xml                   
     
       - name: Zip the content                              # Zip the contents inside target dir
         run: |
             cd target
-            zip -r ${{ github.ref }}.zip * && mv ${{ github.ref }}.zip ..  
+            zip -r fastjson.zip * && mv fastjson.zip ..  
             cd .. 
         
       - name: Create release
@@ -43,8 +43,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./${{ github.ref }}.zip
-          asset_name: ${{ github.ref }}.zip
+          asset_path: ./fastjson.zip
+          asset_name: fastjson.zip
           asset_content_type: application/zip
       - name: Publish release
         uses: StuYarrow/publish-release@v1
