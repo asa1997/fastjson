@@ -39,11 +39,9 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
           body: |
-            Changed JDK version to 1.8
-            Changed artifact version for fastjson
-            Minor error fixes for test cases 
+            Release to test GitHub actions.
           draft: true
-          prerelease: false
+          prerelease: true
       - name: Upload release asset
         uses: actions/upload-release-asset@v1
         env:
