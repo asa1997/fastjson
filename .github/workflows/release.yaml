@@ -14,6 +14,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
         
+      - name: Fetching latest changes
+      - run: git pull origin v1.2.24-BeSp2
 
       - name: Create Jar
         run: |
