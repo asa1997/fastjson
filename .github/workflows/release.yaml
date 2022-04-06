@@ -27,7 +27,7 @@ jobs:
       - name: Zip the content                              # Zip the contents inside target dir
         run: |
             cd target
-            zip -r v1.2.24-BeSp0.1.zip * && mv v1.2.24-BeSp0.1.zip ..  
+            zip -r v1.2.24-BeSp0.2.zip * && mv v1.2.24-BeSp0.2.zip ..  
             cd .. 
         
       - name: Create release
@@ -50,8 +50,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./v1.2.24-BeSp0.1.zip
-          asset_name: v1.2.24-BeSp0.1.zip
+          asset_path: ./v1.2.24-BeSp0.2.zip
+          asset_name: v1.2.24-BeSp0.2.zip
           asset_content_type: application/zip
       - name: Publish release
         uses: StuYarrow/publish-release@v1
