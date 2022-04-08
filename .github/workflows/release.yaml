@@ -31,7 +31,7 @@ jobs:
     
       - name: Zip the content                  # Zip the contents inside target dir
         run: |
-            cd target && mv ../mv git_diff.txt .
+            cd target && mv ../git_diff.txt .
             zip -r v1.2.24-BeSp0.1.zip * && mv v1.2.24-BeSp0.1.zip ..  
             cd .. 
         
