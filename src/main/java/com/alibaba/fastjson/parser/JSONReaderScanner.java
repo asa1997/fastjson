@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2017 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
         }
 
         if (buf == null) {
-            buf = new char[1024 * 8];
+            buf = new char[1024 * 16];
         }
 
         try {
@@ -165,7 +165,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
             if (sp > 0) {
                 int offset;
                 offset = bufLength - sp;
-                if (ch == '"') {
+                if (ch == '"' && offset > 0) {
                     offset--;
                 }
                 System.arraycopy(buf, offset, buf, 0, sp);
@@ -217,6 +217,10 @@ public final class JSONReaderScanner extends JSONLexerBase {
     }
 
     public byte[] bytesValue() {
+        if (token == JSONToken.HEX) {
+            throw new JSONException("TODO");
+        }
+
         return IOUtils.decodeBase64(buf, np + 1, sp);
     }
 
@@ -298,7 +302,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
     public void close() {
         super.close();
 
-        if (buf.length <= 1024 * 32) {
+        if (buf.length <= 1024 * 64) {
             BUF_LOCAL.set(buf);
         }
         this.buf = null;
@@ -308,7 +312,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
 
     @Override
     public boolean isEOF() {
-        return bufLength == -1 || bp == buf.length || ch == EOI && bp + 1 == buf.length;
+        return bufLength == -1 || bp == buf.length || ch == EOI && bp + 1 >= buf.length;
     }
 
     public final boolean isBlankInput() {

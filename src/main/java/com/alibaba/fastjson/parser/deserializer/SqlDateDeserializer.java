@@ -1,14 +1,17 @@
 package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
+import com.alibaba.fastjson.util.TypeUtils;
 
 public class SqlDateDeserializer extends AbstractDateDeserializer implements ObjectDeserializer {
 
@@ -37,6 +40,8 @@ public class SqlDateDeserializer extends AbstractDateDeserializer implements Obj
 
         if (val instanceof java.util.Date) {
             val = new java.sql.Date(((Date) val).getTime());
+        } else if (val instanceof BigDecimal) {
+            val = (T) new java.sql.Date(TypeUtils.longValue((BigDecimal) val));
         } else if (val instanceof Number) {
             val = (T) new java.sql.Date(((Number) val).longValue());
         } else if (val instanceof String) {
@@ -86,6 +91,10 @@ public class SqlDateDeserializer extends AbstractDateDeserializer implements Obj
             return (T) new java.sql.Timestamp(((Date) val).getTime());
         }
 
+        if (val instanceof BigDecimal) {
+            return (T) new java.sql.Timestamp(TypeUtils.longValue((BigDecimal) val));
+        }
+
         if (val instanceof Number) {
             return (T) new java.sql.Timestamp(((Number) val).longValue());
         }
@@ -99,10 +108,22 @@ public class SqlDateDeserializer extends AbstractDateDeserializer implements Obj
             long longVal;
             JSONScanner dateLexer = new JSONScanner(strVal);
             try {
-                if (dateLexer.scanISO8601DateIfMatch()) {
+                if (strVal.length() > 19
+                        && strVal.charAt(4) == '-'
+                        && strVal.charAt(7) == '-'
+                        && strVal.charAt(10) == ' '
+                        && strVal.charAt(13) == ':'
+                        && strVal.charAt(16) == ':'
+                        && strVal.charAt(19) == '.') {
+                    String dateFomartPattern = parser.getDateFomartPattern();
+                    if (dateFomartPattern.length() != strVal.length() && dateFomartPattern == JSON.DEFFAULT_DATE_FORMAT) {
+                        return (T) java.sql.Timestamp.valueOf(strVal);
+                    }
+                }
+
+                if (dateLexer.scanISO8601DateIfMatch(false)) {
                     longVal = dateLexer.getCalendar().getTimeInMillis();
                 } else {
-
                     DateFormat dateFormat = parser.getDateFormat();
                     try {
                         java.util.Date date = (java.util.Date) dateFormat.parse(strVal);
