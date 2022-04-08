@@ -7,6 +7,8 @@ on:
       - 'v1.2.24-BeSp*' # Push events for changes under v1.2.24-BeSp0.1, v1.2.24-BeSp0.2...
 
 jobs:
+
+# 1. Zip and release the artifact.
   build:
     name: Create Release
     runs-on: ubuntu-18.04
@@ -59,6 +61,7 @@ jobs:
         with:
           id: ${{ steps.create_release.outputs.id }}
 
+# Job for Generate Build Provenance
   Anchore-Build-Scan:
     permissions:
       contents: read # for actions/checkout to fetch code
@@ -92,8 +95,8 @@ jobs:
         with:
           path: provenance.json
 
-
-  test_cosign_action:
+# Job for signing the artifact.
+  cosign_action:
     runs-on: ubuntu-latest
 
     permissions: {}
