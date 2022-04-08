@@ -18,15 +18,15 @@ jobs:
         
       # - name: Fetching latest changes
       #   run: git fetch origin v1.2.24-BeSp2
-      - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
-        uses: anchore/sbom-action@v0.7.0
-        with:
-           path: /home/runner/work/fastjson/fastjson
+      # - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
+      #   uses: anchore/sbom-action@v0.7.0
+      #   with:
+      #      path: /home/runner/work/fastjson/fastjson
            
-      - uses: anchore/sbom-action/publish-sbom@v0
-        with:
-          path: /home/runner/work/fastjson/fastjson
-          sbom-artifact-match: ".*\\.spdx$"
+      # - uses: anchore/sbom-action/publish-sbom@v0
+      #   with:
+      #     path: /home/runner/work/fastjson/fastjson
+      #     sbom-artifact-match: ".*\\.spdx$"
       
       - name: Create Jar
         run: |
@@ -62,9 +62,43 @@ jobs:
           asset_path: ./v1.2.24-BeSp0.1.zip
           asset_name: v1.2.24-BeSp0.1.zip
           asset_content_type: application/zip
+          
       - name: Publish release
         uses: StuYarrow/publish-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           id: ${{ steps.create_release.outputs.id }}
+
+  Anchore-Build-Scan:
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+    runs-on: ubuntu-latest
+    steps:
+    - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
+      uses: anchore/sbom-action@v0.7.0
+      with:
+        path: /home/runner/work/fastjson/fastjson
+          
+  Provenance-Generation:
+    needs: Anchore-Build-Scan
+    runs-on: ubuntu-latest
+    name: Generate Build Provenance
+    steps:
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v3
+        with:
+          path: artifact/
+      
+      - name: Generate Provinenace
+        uses: philips-labs/slsa-provenance-action@v0.7.2
+        with:
+          command: generate
+          subcommand: files
+          arguments: --artifact-path artifact/ 
+          
+      - name: Upload Provenance
+        uses: actions/upload-artifact@v3
+        with:
+          path: provenance.json
