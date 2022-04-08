@@ -25,6 +25,7 @@ jobs:
            
       - uses: anchore/sbom-action/publish-sbom@v0
         with:
+          path: /home/runner/work/fastjson/fastjson
           sbom-artifact-match: ".*\\.spdx$"
       
       - name: Create Jar
