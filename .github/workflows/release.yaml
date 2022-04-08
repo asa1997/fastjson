@@ -71,7 +71,7 @@ jobs:
     - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
       uses: anchore/sbom-action@v0.7.0
       with:
-        path: /home/runner/work/fastjson/fastjson
+        path: /home/runner/work/fastjson/fastjson/
           
   Provenance-Generation:
     needs: Anchore-Build-Scan
