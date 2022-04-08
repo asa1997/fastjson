@@ -20,8 +20,8 @@ jobs:
         
       - name: Performing git diff for tag
         run: |
-              git fetch -a 
-              git tag 1.2.4 v1.2.24BeSp0.1 > git_diff.txt
+          git fetch -a 
+          git tag 1.2.4 v1.2.24BeSp0.1 > git_diff.txt
       
       - name: Create Jar
         run: |
