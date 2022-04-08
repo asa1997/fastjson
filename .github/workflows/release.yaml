@@ -16,26 +16,14 @@ jobs:
         with:
           ref: v1.2.24-BeSp2
         
-      # - name: Fetching latest changes
-      #   run: git fetch origin v1.2.24-BeSp2
-      # - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
-      #   uses: anchore/sbom-action@v0.7.0
-      #   with:
-      #      path: /home/runner/work/fastjson/fastjson
-           
-      # - uses: anchore/sbom-action/publish-sbom@v0
-      #   with:
-      #     path: /home/runner/work/fastjson/fastjson
-      #     sbom-artifact-match: ".*\\.spdx$"
       
       - name: Create Jar
         run: |
           mvn compile --file pom.xml
           mvn clean package --file pom.xml
-          
-
+      
     
-      - name: Zip the content                              # Zip the contents inside target dir
+      - name: Zip the content                  # Zip the contents inside target dir
         run: |
             cd target
             zip -r v1.2.24-BeSp0.1.zip * && mv v1.2.24-BeSp0.1.zip ..  
@@ -53,6 +41,7 @@ jobs:
             Release to test GitHub actions.
           draft: true
           prerelease: true
+          
       - name: Upload release asset
         uses: actions/upload-release-asset@v1
         env:
