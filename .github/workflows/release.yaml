@@ -77,7 +77,7 @@ jobs:
       - name: Download scan report
         uses: actions/download-artifact@v3
         with:
-          name: provenance.json
+          name: provenance
 
       - name: listing the content
         run: |
