@@ -30,8 +30,7 @@ jobs:
             git fetch -a 
             cd target && git diff 1.2.24 v1.2.24-BeSp0.1 > git_diff.txt
             zip -r v1.2.24-BeSp0.1.zip * && mv v1.2.24-BeSp0.1.zip ..  
-            cd .. 
-            ls
+       
         
       - name: Create release
         id: create_release
@@ -64,15 +63,6 @@ jobs:
         with:
           id: ${{ steps.create_release.outputs.id }}
 
-#       - uses: anchore/sbom-action@v0
-#         with:
-#           path: /home/runner/work/fastjson/fastjson/
-          
-#       - uses: anchore/sbom-action/publish-sbom@v0
-#         with:
-#           sbom-artifact-match: ".*\\.spdx$"
-
-# Job for Generate Build Provenance
   Anchore-Build-Scan:
     permissions:
       contents: read # for actions/checkout to fetch code
@@ -82,9 +72,30 @@ jobs:
     - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
       uses: anchore/sbom-action@v0.7.0
       with:
-        path: /home/runner/work/fastjson/fastjson/
-        
-    - name: checking the contents
-      run: |
-        ls 
-        ls /home/runner/work/fastjson/fastjson/
+        image: ghcr.io/bananth2008/signedcontainer:1910545656
+        registry-username: bananth2008
+        registry-password: ${{secrets.GITHUB_TOKEN}}
+  Provenance-Generation:
+    needs: Anchore-Build-Scan
+    runs-on: ubuntu-latest
+    name: Generate Build Provenance
+    steps:
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v3
+        with:
+          path: artifact/
+      
+      - name: Generate Provinenace
+        uses: philips-labs/slsa-provenance-action@v0.7.2
+        with:
+          command: generate
+          subcommand: files
+          arguments: --artifact-path artifact/ 
+          
+      - name: Upload Provenance
+        uses: actions/upload-artifact@v3
+        with:
+          path: provenance.json
+      
+
+
