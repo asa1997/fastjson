@@ -24,7 +24,7 @@ jobs:
       uses: anchore/sbom-action@v0.7.0
       with:
         path: /home/runner/work/fastjson/fastjson/
-  Provenance-Generation-with-build:
+  Provenance-Generation:
     needs: Anchore-Build-Scan
     runs-on: ubuntu-latest
     name: Generate Build Provenance
@@ -53,12 +53,12 @@ jobs:
         with:
           path: provenance.json
 
-# # 1. Zip and release the artifact.
-#   build:
-#     needs: Provenance-Generation
-#     name: Create Release
-#     runs-on: ubuntu-18.04
-#     steps:
+# 1. Zip and release the artifact.
+  build:
+    needs: Provenance-Generation
+    name: Create Release
+    runs-on: ubuntu-18.04
+    steps:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
@@ -77,7 +77,6 @@ jobs:
       
       - name: Zip the target directory content along with git diff    
         run: |
-            mv provenance.json target
             git fetch -a 
             cd target && git diff 1.2.24 v1.2.24-BeSp0.1 > git_diff.txt
             zip -r v1.2.24-BeSp0.1.zip * && mv v1.2.24-BeSp0.1.zip ..  
