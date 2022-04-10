@@ -50,13 +50,16 @@ jobs:
           arguments: --artifact-path artifact/ 
           
           
-      - run: mkdir -p pro/    
+      - run: | 
+          mkdir -p pro/    
+          pwd
+          ls
       
       - name: Upload Provenance
         uses: actions/upload-artifact@v3
         with:
           name: provenance
-          path: pro/
+          path: provenance.json
           
       - run: ls pro/
           
