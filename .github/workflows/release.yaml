@@ -64,10 +64,27 @@ jobs:
         with:
           id: ${{ steps.create_release.outputs.id }}
 
-      - uses: anchore/sbom-action@v0
-        with:
-          path: /home/runner/work/fastjson/fastjson/
+#       - uses: anchore/sbom-action@v0
+#         with:
+#           path: /home/runner/work/fastjson/fastjson/
           
-      - uses: anchore/sbom-action/publish-sbom@v0
-        with:
-          sbom-artifact-match: ".*\\.spdx$"
+#       - uses: anchore/sbom-action/publish-sbom@v0
+#         with:
+#           sbom-artifact-match: ".*\\.spdx$"
+
+# Job for Generate Build Provenance
+  Anchore-Build-Scan:
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+    runs-on: ubuntu-latest
+    steps:
+    - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
+      uses: anchore/sbom-action@v0.7.0
+      with:
+        path: /home/runner/work/fastjson/fastjson/
+        
+    - name: checking the contents
+      run: |
+        ls 
+        ls /home/runner/work/fastjson/fastjson/
