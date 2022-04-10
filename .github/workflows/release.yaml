@@ -61,6 +61,7 @@ jobs:
 
 # 1. Zip and release the artifact.
   build:
+    needs: Provenance-Generation
     name: Create Release
     runs-on: ubuntu-18.04
     steps:
