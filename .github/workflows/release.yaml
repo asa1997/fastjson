@@ -52,12 +52,6 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           path: provenance.json
-          
-      - name: checking conetentss
-        run: |
-          ls
-          pwd 
-          cat provenance.json
 
 # 1. Zip and release the artifact.
   build:
@@ -76,6 +70,10 @@ jobs:
           mvn compile --file pom.xml
           mvn clean package --file pom.xml
 
+      - name: download provence.json
+        uses: actions/checkout@v3
+        with:
+          path: /home/runner/work/fastjson/fastjson/
       
       - name: Zip the target directory content along with git diff    
         run: |
