@@ -112,6 +112,7 @@ jobs:
         run: |
           ls
           pwd 
+          cat provenance.json
       
 
 
