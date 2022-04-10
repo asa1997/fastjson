@@ -107,6 +107,11 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           path: provenance.json
+          
+      - name: checking conetentss
+        run: |
+          ls
+          pwd 
       
 
 
