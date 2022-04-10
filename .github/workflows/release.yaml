@@ -48,10 +48,10 @@ jobs:
           subcommand: files
           arguments: --artifact-path artifact/ 
           
-      - name: Upload Provenance
-        uses: actions/upload-artifact@v3
-        with:
-          path: provenance.json
+#       - name: Upload Provenance
+#         uses: actions/upload-artifact@v3
+#         with:
+#           path: provenance.json
 
 # 1. Zip and release the artifact.
   build:
