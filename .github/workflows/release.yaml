@@ -24,7 +24,7 @@ jobs:
       uses: anchore/sbom-action@v0.7.0
       with:
         path: /home/runner/work/fastjson/fastjson/
-  Provenance-Generation:
+  Provenance-Generation-with-build:
     needs: Anchore-Build-Scan
     runs-on: ubuntu-latest
     name: Generate Build Provenance
@@ -53,12 +53,12 @@ jobs:
         with:
           path: provenance.json
 
-# 1. Zip and release the artifact.
-  build:
-    needs: Provenance-Generation
-    name: Create Release
-    runs-on: ubuntu-18.04
-    steps:
+# # 1. Zip and release the artifact.
+#   build:
+#     needs: Provenance-Generation
+#     name: Create Release
+#     runs-on: ubuntu-18.04
+#     steps:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
