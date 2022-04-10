@@ -14,7 +14,6 @@ jobs:
       security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
     runs-on: ubuntu-latest
     steps:
-
     - name: Checkout code
       uses: actions/checkout@v3
       with:
@@ -24,6 +23,7 @@ jobs:
       uses: anchore/sbom-action@v0.7.0
       with:
         path: /home/runner/work/fastjson/fastjson/
+        
   Provenance-Generation:
     needs: Anchore-Build-Scan
     runs-on: ubuntu-latest
@@ -38,6 +38,7 @@ jobs:
         uses: sigstore/cosign-installer@main
         with:
           cosign-release: 'v1.5.2'
+          
       - name: Check install
         run: cosign version
       
@@ -48,11 +49,6 @@ jobs:
           subcommand: files
           arguments: --artifact-path artifact/ 
           
-#       - name: Upload Provenance
-#         uses: actions/upload-artifact@v3
-#         with:
-#           path: provenance.json
-
 # 1. Zip and release the artifact.
   build:
     needs: Provenance-Generation
@@ -63,55 +59,66 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: v1.2.24-BeSp2
-        
-
-      - name: Create Jar
+          
+      - name: Download scan report
+        uses: actions/download-artifact@v3
+        with:
+          path: provence/    
+          
+      - name: listing the content
         run: |
-          mvn compile --file pom.xml
-          mvn clean package --file pom.xml
+          ls
+          ls provence/
 
-#       - name: download provence.json
-#         uses: actions/checkout@v3
-#         with:
-#           path: /home/runner/work/fastjson/fastjson/
       
-      - name: Zip the target directory content along with git diff    
-        run: |
-            git fetch -a 
-            cd target && git diff 1.2.24 v1.2.24-BeSp0.1 > git_diff.txt
-            zip -r v1.2.24-BeSp0.1.zip * && mv v1.2.24-BeSp0.1.zip ..  
+
+#       - name: Create Jar
+#         run: |
+#           mvn compile --file pom.xml
+#           mvn clean package --file pom.xml
+
+# #       - name: download provence.json
+# #         uses: actions/checkout@v3
+# #         with:
+# #           path: /home/runner/work/fastjson/fastjson/
+      
+#       - name: Zip the target directory content along with git diff    
+#         run: |
+#             git fetch -a 
+#             cd target && git diff 1.2.24 v1.2.24-BeSp0.1 > git_diff.txt
+#             zip -r v1.2.24-BeSp0.1.zip * && mv v1.2.24-BeSp0.1.zip ..  
        
         
-      - name: Create release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: |
-            Changed JDK version to 1.8
-            Changed artifact version for fastjson
-            Minor error fixes for test cases
-          draft: true
-          prerelease: false
-      - name: Upload release asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./v1.2.24-BeSp0.1.zip
-#           asset_path: .
-          asset_name: v1.2.24-BeSp0.1.zip
-          asset_content_type: application/zip
-      - name: Publish release
-        uses: StuYarrow/publish-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          id: ${{ steps.create_release.outputs.id }}
+#       - name: Create release
+#         id: create_release
+#         uses: actions/create-release@v1
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+#         with:
+#           tag_name: ${{ github.ref }}
+#           release_name: Release ${{ github.ref }}
+#           body: |
+#             Changed JDK version to 1.8
+#             Changed artifact version for fastjson
+#             Minor error fixes for test cases
+#           draft: true
+#           prerelease: false
+#       - name: Upload release asset
+#         uses: actions/upload-release-asset@v1
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         with:
+#           upload_url: ${{ steps.create_release.outputs.upload_url }}
+#           asset_path: ./v1.2.24-BeSp0.1.zip
+# #           asset_path: .
+#           asset_name: v1.2.24-BeSp0.1.zip
+#           asset_content_type: application/zip
+#       - name: Publish release
+#         uses: StuYarrow/publish-release@v1
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         with:
+#           id: ${{ steps.create_release.outputs.id }}
 
 
       
