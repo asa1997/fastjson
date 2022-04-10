@@ -49,10 +49,16 @@ jobs:
           subcommand: files
           arguments: --artifact-path artifact/ 
           
+          
+      - run: mkdir -p pro/    
+      
       - name: Upload Provenance
         uses: actions/upload-artifact@v3
         with:
-          path: provenance.json
+          name: provenance
+          path: pro/
+          
+      - run: ls pro/
           
 # 1. Zip and release the artifact.
   build:
@@ -68,7 +74,10 @@ jobs:
       - name: Download scan report
         uses: actions/download-artifact@v3
         with:
-          path: provence/    
+          name: provenance
+          
+      - run: |
+           ls 
           
       - name: listing the content
         run: |
