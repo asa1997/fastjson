@@ -53,8 +53,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-#           asset_path: ./v1.2.24-BeSp0.1.zip
-          asset_path: .
+          asset_path: ./v1.2.24-BeSp0.1.zip
+#           asset_path: .
           asset_name: v1.2.24-BeSp0.1.zip
           asset_content_type: application/zip
       - name: Publish release
