@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2018 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -147,8 +147,12 @@ public enum SerializerFeature {
     /**
      * @since 1.2.16
      */
-    WriteBigDecimalAsPlain
-    ;
+    WriteBigDecimalAsPlain,
+
+    /**
+     * @since 1.2.27
+     */
+    MapSortField;
 
     SerializerFeature(){
         mask = (1 << ordinal());
@@ -164,10 +168,10 @@ public enum SerializerFeature {
         return (features & feature.mask) != 0;
     }
     
-    public static boolean isEnabled(int features, int fieaturesB, SerializerFeature feature) {
+    public static boolean isEnabled(int features, int featuresB, SerializerFeature feature) {
         int mask = feature.mask;
         
-        return (features & mask) != 0 || (fieaturesB & mask) != 0;
+        return (features & mask) != 0 || (featuresB & mask) != 0;
     }
 
     public static int config(int features, SerializerFeature feature, boolean state) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group.
+ * Copyright 1999-2018 Alibaba Group.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.alibaba.fastjson.serializer;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -39,16 +40,28 @@ import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
+import org.w3c.dom.Node;
+
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
 public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
+    private static      boolean   FILE_RELATIVE_PATH_SUPPORT = false;
+    public final static MiscCodec instance                   = new MiscCodec();
+    private static      Method    method_paths_get;
+    private static      boolean   method_paths_get_error     = false;
 
-    public final static MiscCodec instance               = new MiscCodec();
-    private static Method         method_paths_get;
-    private static boolean        method_paths_get_error = false;
+    static {
+        FILE_RELATIVE_PATH_SUPPORT = "true".equals(IOUtils.getStringProperty("fastjson.deserializer.fileRelativePathSupport"));
+    }
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType,
                       int features) throws IOException {
@@ -127,7 +140,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
 
                 if (objVal instanceof String) {
                     String value = (String) objVal;
-                    out.writeFieldValueStringWithDoubleQuote('{', key, value);
+                    out.writeFieldValueStringWithDoubleQuoteCheck('{', key, value);
                 } else {
                     out.write('{');
                     out.writeFieldName(key);
@@ -144,11 +157,27 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         } else if (object.getClass().getName().equals("net.sf.json.JSONNull")) {
             out.writeNull();
             return;
+        } else if (object instanceof org.w3c.dom.Node) {
+            strVal = toString((Node) object);
         } else {
             throw new JSONException("not support class : " + objClass);
         }
 
         out.writeString(strVal);
+    }
+
+    private static String toString(org.w3c.dom.Node node) {
+        try {
+            TransformerFactory transFactory = TransformerFactory.newInstance();
+            Transformer transformer = transFactory.newTransformer();
+            DOMSource domSource = new DOMSource(node);
+
+            StringWriter out = new StringWriter();
+            transformer.transform(domSource, new StreamResult(out));
+            return out.toString();
+        } catch (TransformerException e) {
+            throw new JSONException("xml node to string error", e);
+        }
     }
 
     protected void writeIterator(JSONSerializer serializer, SerializeWriter out, Iterator<?> it) {
@@ -244,10 +273,25 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
             strVal = (String) objVal;
         } else {
             if (objVal instanceof JSONObject) {
+                JSONObject jsonObject = (JSONObject) objVal;
+
+                if (clazz == Currency.class) {
+                    String currency = jsonObject.getString("currency");
+                    if (currency != null) {
+                        return (T) Currency.getInstance(currency);
+                    }
+
+                    String symbol = jsonObject.getString("currencyCode");
+                    if (symbol != null) {
+                        return (T) Currency.getInstance(symbol);
+                    }
+                }
+
                 if (clazz == Map.Entry.class) {
-                   JSONObject jsonObject = (JSONObject) objVal;
                    return (T) jsonObject.entrySet().iterator().next();
                 }
+
+                return jsonObject.toJavaObject(clazz);
             }
             throw new JSONException("expect string");
         }
@@ -277,17 +321,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         if (clazz == Locale.class) {
-            String[] items = strVal.split("_");
-
-            if (items.length == 1) {
-                return (T) new Locale(items[0]);
-            }
-
-            if (items.length == 2) {
-                return (T) new Locale(items[0], items[1]);
-            }
-
-            return (T) new Locale(items[0], items[1], items[2]);
+            return (T) TypeUtils.toLocale(strVal);
         }
 
         if (clazz == SimpleDateFormat.class) {
@@ -305,6 +339,10 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         if (clazz == File.class) {
+            if (strVal.indexOf("..") >= 0 && !FILE_RELATIVE_PATH_SUPPORT) {
+                throw new JSONException("file relative path not support.");
+            }
+
             return (T) new File(strVal);
         }
 
@@ -318,7 +356,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         if (clazz == Class.class) {
-            return (T) TypeUtils.loadClass(strVal, parser.getConfig().getDefaultClassLoader());
+            return (T) TypeUtils.loadClass(strVal, parser.getConfig().getDefaultClassLoader(), false);
         }
 
         if (clazz == Charset.class) {
@@ -333,29 +371,35 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
             return (T) new JSONPath(strVal);
         }
 
-        String className = clazz.getTypeName();
 
-        if (className.equals("java.nio.file.Path")) {
-            try {
-                if (method_paths_get == null && !method_paths_get_error) {
-                    Class<?> paths = TypeUtils.loadClass("java.nio.file.Paths");
-                    method_paths_get = paths.getMethod("get", String.class, String[].class);
+
+        if (clazz instanceof Class) {
+            String className = ((Class) clazz).getName();
+
+            if (className.equals("java.nio.file.Path")) {
+                try {
+                    if (method_paths_get == null && !method_paths_get_error) {
+                        Class<?> paths = TypeUtils.loadClass("java.nio.file.Paths");
+                        method_paths_get = paths.getMethod("get", String.class, String[].class);
+                    }
+                    if (method_paths_get != null) {
+                        return (T) method_paths_get.invoke(null, strVal, new String[0]);
+                    }
+
+                    throw new JSONException("Path deserialize erorr");
+                } catch (NoSuchMethodException ex) {
+                    method_paths_get_error = true;
+                } catch (IllegalAccessException ex) {
+                    throw new JSONException("Path deserialize erorr", ex);
+                } catch (InvocationTargetException ex) {
+                    throw new JSONException("Path deserialize erorr", ex);
                 }
-                if (method_paths_get != null) {
-                    return (T) method_paths_get.invoke(null, strVal, new String[0]);
-                }
-                
-                throw new JSONException("Path deserialize erorr");
-            } catch (NoSuchMethodException ex) {
-                method_paths_get_error = true;
-            } catch (IllegalAccessException ex) {
-                throw new JSONException("Path deserialize erorr", ex);
-            } catch (InvocationTargetException ex) {
-                throw new JSONException("Path deserialize erorr", ex);
             }
+
+            throw new JSONException("MiscCodec not support " + className);
         }
 
-        throw new JSONException("MiscCodec not support " + className);
+        throw new JSONException("MiscCodec not support " + clazz.toString());
     }
 
     public int getFastMatchToken() {

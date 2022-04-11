@@ -1,5 +1,6 @@
 package com.alibaba.fastjson.serializer;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -192,17 +193,37 @@ public abstract class SerializeFilterable {
 
         return key;
     }
+
+    protected Object processValue(JSONSerializer jsonBeanDeser, //
+            BeanContext beanContext,
+            Object object, //
+            String key, //
+            Object propertyValue) {
+        return processValue(jsonBeanDeser, beanContext, object, key, propertyValue, 0);
+    }
     
     protected Object processValue(JSONSerializer jsonBeanDeser, //
                                BeanContext beanContext,
                                Object object, //
                                String key, //
-                               Object propertyValue) {
+                               Object propertyValue, //
+                               int features) {
 
         if (propertyValue != null) {
-            if (jsonBeanDeser.out.writeNonStringValueAsString //
+            if ((SerializerFeature.isEnabled(jsonBeanDeser.out.features, features, SerializerFeature.WriteNonStringValueAsString)  //
+                    || (beanContext != null && (beanContext.getFeatures() & SerializerFeature.WriteNonStringValueAsString.mask) != 0))
                     && (propertyValue instanceof Number || propertyValue instanceof Boolean)) {
-                propertyValue = propertyValue.toString();
+                String format = null;
+                if (propertyValue instanceof Number
+                        && beanContext != null) {
+                    format = beanContext.getFormat();
+                }
+
+                if (format != null) {
+                    propertyValue = new DecimalFormat(format).format(propertyValue);
+                } else {
+                    propertyValue = propertyValue.toString();
+                }
             } else if (beanContext != null && beanContext.isJsonDirect()) {
                 String jsonStr = (String) propertyValue;
                 propertyValue = JSON.parse(jsonStr);
