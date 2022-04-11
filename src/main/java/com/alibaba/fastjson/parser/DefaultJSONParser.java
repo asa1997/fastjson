@@ -262,14 +262,12 @@ public class DefaultJSONParser implements Closeable {
                     lexer.resetStringPosition();
                     lexer.scanNumber();
                     try {
-                        if (lexer.token() == JSONToken.LITERAL_INT) {
+                    	if (lexer.token() == JSONToken.LITERAL_INT) {
                             key = lexer.integerValue();
                         } else {
                             key = lexer.decimalValue(true);
                         }
-                        if (lexer.isEnabled(Feature.NonStringKeyAsString) || isJsonObjectMap) {
-                            key = key.toString();
-                        }
+                    	
                     } catch (NumberFormatException e) {
                         throw new JSONException("parse number key error" + lexer.info());
                     }
@@ -533,17 +531,8 @@ public class DefaultJSONParser implements Closeable {
 
                     final boolean parentIsArray = fieldName != null && fieldName.getClass() == Integer.class;
 
-                    Map input;
-                    if (lexer.isEnabled(Feature.CustomMapDeserializer)) {
-                        MapDeserializer mapDeserializer = (MapDeserializer) config.getDeserializer(Map.class);
+                    JSONObject input = new JSONObject(lexer.isEnabled(Feature.OrderedField));
 
-
-                        input = (lexer.getFeatures() & Feature.OrderedField.mask) != 0
-                                ? mapDeserializer.createMap(Map.class, lexer.getFeatures())
-                                : mapDeserializer.createMap(Map.class);
-                    } else {
-                        input = new JSONObject(lexer.isEnabled(Feature.OrderedField));
-                    }
                     ParseContext ctxLocal = null;
 
                     if (!parentIsArray) {

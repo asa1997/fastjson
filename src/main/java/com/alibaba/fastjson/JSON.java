@@ -111,11 +111,6 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             }
         }
 
-        {
-            if ("true".equals(properties.getProperty("parser.features.NonStringKeyAsString"))) {
-                DEFAULT_PARSER_FEATURE |= Feature.NonStringKeyAsString.getMask();
-            }
-        }
 
         {
             if ("true".equals(properties.getProperty("parser.features.ErrorOnEnumNotMatch"))
