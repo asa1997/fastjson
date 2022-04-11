@@ -562,4 +562,12 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
         TypeUtils.setAccessible(field);
     }
+    public boolean alternateName(String name) {
+        for (String item : this.alternateNames) {
+            if (item.equals(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
