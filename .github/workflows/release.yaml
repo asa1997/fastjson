@@ -38,13 +38,13 @@ jobs:
       - name: Check install
         run: cosign version
       - name: Generate Provinenace
-#         uses: philips-labs/slsa-provenance-action@v0.7.2
-        uses: slsa-framework/github-actions-demo@v0.1
+        uses: philips-labs/slsa-provenance-action@v0.7.2
+#         uses: slsa-framework/github-actions-demo@v0.1
         with:
-#           command: generate
-#           subcommand: files
-#           arguments: --artifact-path artifact/
-          path: artifact/
+          command: generate
+          subcommand: files
+          arguments: --artifact-path artifact/
+#           path: artifact/
       - name: Upload Provenance
         uses: actions/upload-artifact@v3
         with:
