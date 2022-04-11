@@ -4,6 +4,10 @@ on:
     # Sequence of  patterns matched against refs/tags
     tags:
       - 'v1.2.24-BeSp*' # Push events for changes under v1.2.24-BeSp0.1, v1.2.24-BeSp0.2...
+      
+env:
+    tag: v1.2.24-BeSp2-0.1
+    
 jobs:
 # Job for scan the code 
   Anchore-Scan:
@@ -74,8 +78,8 @@ jobs:
       - name: Zip content with provenance.json and git diff    # Ziping with provenance.json, content of target directory and git diff
         run: |
             git fetch -a 
-            cd target && git diff 1.2.24 v1.2.24-BeSp0.1 > git_diff.txt
-            zip -r v1.2.24-BeSp0.1.zip * && mv v1.2.24-BeSp0.1.zip ..  
+            cd target && git diff 1.2.24 ${{env.tag}} > git_diff.txt
+            zip -r ${{env.tag}}.zip * && mv ${{env.tag}}.zip ..  
       - name: Create release
         id: create_release
         uses: actions/create-release@v1
@@ -84,10 +88,6 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
-          body: |
-            Changed JDK version to 1.8
-            Changed artifact version for fastjson
-            Minor error fixes for test cases
           draft: true
           prerelease: false
       - name: Upload release asset
@@ -96,8 +96,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./v1.2.24-BeSp0.1.zip
-          asset_name: v1.2.24-BeSp0.1.zip
+          asset_path: ./${{env.tag}}.zip
+          asset_name: ${{env.tag}}.zip
           asset_content_type: application/zip
       - name: Publish release
         uses: StuYarrow/publish-release@v1
