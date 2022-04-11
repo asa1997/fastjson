@@ -67,9 +67,12 @@ jobs:
         run: |
           mvn compile --file pom.xml
           mvn clean package --file pom.xml
+          
+      - name: Place Provenance report inside Target directory 
+        run: mv provenance.json target
+        
       - name: Zip content with provenance.json and git diff    # Ziping with provenance.json, content of target directory and git diff
         run: |
-            mv provenance.json target
             git fetch -a 
             cd target && git diff 1.2.24 v1.2.24-BeSp0.1 > git_diff.txt
             zip -r v1.2.24-BeSp0.1.zip * && mv v1.2.24-BeSp0.1.zip ..  
