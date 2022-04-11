@@ -55,7 +55,7 @@ jobs:
     name: Create Release
     runs-on: ubuntu-18.04
     env:
-      tag: v1.2.24-BeSp2
+      tag: v1.2.24-BeSp2-0.1
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
