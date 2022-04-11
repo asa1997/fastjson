@@ -4,6 +4,10 @@ on:
     # Sequence of  patterns matched against refs/tags
     tags:
       - 'v1.2.24-BeSp*' # Push events for changes under v1.2.24-BeSp0.1, v1.2.24-BeSp0.2...
+      
+env:
+    tag: v1.2.24-BeSp2-0.1
+    
 jobs:
 # Job for scan the code 
   Anchore-Scan:
@@ -54,8 +58,6 @@ jobs:
     needs: Provenance-Generation
     name: Create Release
     runs-on: ubuntu-18.04
-    env:
-      tag: v1.2.24-BeSp2-0.1
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -76,8 +78,8 @@ jobs:
       - name: Zip content with provenance.json and git diff    # Ziping with provenance.json, content of target directory and git diff
         run: |
             git fetch -a 
-            cd target && git diff 1.2.24 ${tag} > git_diff.txt
-            zip -r ${tag}.zip * && mv ${tag}.zip ..  
+            cd target && git diff 1.2.24 ${{env.tag}} > git_diff.txt
+            zip -r ${{env.tag}}.zip * && mv ${{env.tag}}.zip ..  
       - name: Create release
         id: create_release
         uses: actions/create-release@v1
@@ -94,8 +96,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${tag}.zip
-          asset_name: ${tag}.zip
+          asset_path: ./${{env.tag}}.zip
+          asset_name: ${{env.tag}}.zip
           asset_content_type: application/zip
       - name: Publish release
         uses: StuYarrow/publish-release@v1
