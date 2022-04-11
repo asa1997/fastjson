@@ -54,6 +54,8 @@ jobs:
     needs: Provenance-Generation
     name: Create Release
     runs-on: ubuntu-18.04
+    env:
+      tag: v1.2.24-BeSp2
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -74,8 +76,8 @@ jobs:
       - name: Zip content with provenance.json and git diff    # Ziping with provenance.json, content of target directory and git diff
         run: |
             git fetch -a 
-            cd target && git diff 1.2.24 v1.2.24-BeSp2-0.1 > git_diff.txt
-            zip -r v1.2.24-BeSp2-0.1.zip * && mv v1.2.24-BeSp2-0.1.zip ..  
+            cd target && git diff 1.2.24 ${tag} > git_diff.txt
+            zip -r ${tag}.zip * && mv ${tag}.zip ..  
       - name: Create release
         id: create_release
         uses: actions/create-release@v1
@@ -92,8 +94,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./v1.2.24-BeSp2-0.1.zip
-          asset_name: v1.2.24-BeSp2-0.1.zip
+          asset_path: ./${tag}.zip
+          asset_name: ${tag}.zip
           asset_content_type: application/zip
       - name: Publish release
         uses: StuYarrow/publish-release@v1
