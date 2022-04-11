@@ -115,18 +115,10 @@ public enum Feature {
      */
     IgnoreAutoType,
 
-
     /**
      * @since 1.2.41, backport to 1.1.66.android
      */
     SupportAutoType,
-
-
-
-//    /**
-//     * @since 1.2.45
-//     */
-//    CustomMapDeserializer,
 
     /**
      * @since 1.2.55

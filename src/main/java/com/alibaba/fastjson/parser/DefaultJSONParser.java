@@ -531,17 +531,6 @@ public class DefaultJSONParser implements Closeable {
 
                     final boolean parentIsArray = fieldName != null && fieldName.getClass() == Integer.class;
 
-//                    Map input;
-//                    if (lexer.isEnabled(Feature.CustomMapDeserializer)) {
-//                        MapDeserializer mapDeserializer = (MapDeserializer) config.getDeserializer(Map.class);
-//
-//
-//                        input = (lexer.getFeatures() & Feature.OrderedField.mask) != 0
-//                                ? mapDeserializer.createMap(Map.class, lexer.getFeatures())
-//                                : mapDeserializer.createMap(Map.class);
-//                    } else {
-//                        input = new JSONObject(lexer.isEnabled(Feature.OrderedField));
-//                    }
                     JSONObject input = new JSONObject(lexer.isEnabled(Feature.OrderedField));
 
                     ParseContext ctxLocal = null;
