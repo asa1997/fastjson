@@ -94,7 +94,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./${tag}.zip
+          asset_path: ${tag}.zip
           asset_name: ${tag}.zip
           asset_content_type: application/zip
       - name: Publish release
