@@ -1098,16 +1098,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                               Map<String, Object> fieldValues, int[] setFlags) {
         JSONLexer lexer = parser.lexer; // xxx
 
-        final int disableFieldSmartMatchMask = Feature.DisableFieldSmartMatch.mask;
-        final int initStringFieldAsEmpty = Feature.InitStringFieldAsEmpty.mask;
-        FieldDeserializer fieldDeserializer;
-        if (lexer.isEnabled(disableFieldSmartMatchMask) || (this.beanInfo.parserFeatures & disableFieldSmartMatchMask) != 0) {
-            fieldDeserializer = getFieldDeserializer(key);
-        } else if (lexer.isEnabled(initStringFieldAsEmpty) || (this.beanInfo.parserFeatures & initStringFieldAsEmpty) != 0) {
-            fieldDeserializer = smartMatch(key);
-        } else {
-            fieldDeserializer = smartMatch(key, setFlags);
-        }
+        FieldDeserializer fieldDeserializer = smartMatch(key);
+
 
         final int mask = Feature.SupportNonPublicField.mask;
         if (fieldDeserializer == null
@@ -1311,15 +1303,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 }
             }
 
-            if (fieldDeserializer != null) {
-                FieldInfo fieldInfo = fieldDeserializer.fieldInfo;
-                if ((fieldInfo.parserFeatures & Feature.DisableFieldSmartMatch.mask) != 0) {
-                    return null;
-                }
-
-                Class fieldClass = fieldInfo.fieldClass;
-                if (is && (fieldClass != boolean.class && fieldClass != Boolean.class)) {
-                    fieldDeserializer = null;
+            if (fieldDeserializer == null) {
+                for (FieldDeserializer fieldDeser : sortedFieldDeserializers) {
+                    if (fieldDeser.fieldInfo.alternateName(key)) {
+                        fieldDeserializer = fieldDeser;
+                        break;
+                    }
                 }
             }
         }
